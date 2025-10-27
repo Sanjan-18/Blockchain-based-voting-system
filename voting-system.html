@@ -1084,6 +1084,13 @@
                             <input type="datetime-local" id="electionEndDate" required>
                         </div>
                     </div>
+                    <!-- <CHANGE> Added checkbox to enable/disable geofencing per election -->
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="electionEnableGeofencing" checked>
+                            Enable Geofencing for this Election
+                        </label>
+                    </div>
                     <div class="form-group">
                         <label>Candidates:</label>
                         <div id="candidatesList">
@@ -1098,7 +1105,7 @@
                         </div>
                         <button type="button" id="addCandidate" class="btn btn-primary">+ Add Candidate</button>
                     </div>
-                    <button type="submit" class="btn btn-success">🚀 Create Geofenced Election</button>
+                    <button type="submit" class="btn btn-success">🚀 Create Election</button>
                 </form>
             </div>
 
@@ -1172,6 +1179,96 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
+        // ... existing code ...
+        // <CHANGE> Modified handleCreateElection to support optional geofencing per election
+        function handleCreateElection(e) {
+            e.preventDefault();
+            
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Only administrators can create elections!', 'error');
+                return;
+            }
+            
+            updateGeofenceConfig();
+            
+            const title = document.getElementById('electionTitle').value;
+            const description = document.getElementById('electionDescription').value;
+            const startDate = document.getElementById('electionStartDate').value;
+            const endDate = document.getElementById('electionEndDate').value;
+            const enableGeofencing = document.getElementById('electionEnableGeofencing').checked;
+            const candidateInputs = document.querySelectorAll('#candidatesList .candidate-input');
+            
+            // Validate dates
+            if (new Date(startDate) >= new Date(endDate)) {
+                showToast('End date must be after start date!', 'error');
+                return;
+            }
+            
+            const candidates = [];
+            candidateInputs.forEach((input, index) => {
+                const nameInput = input.querySelector('input[placeholder*="Name"]');
+                const partyInput = input.querySelector('input[placeholder*="Party"]');
+                
+                if (nameInput.value.trim()) {
+                    candidates.push({
+                        id: Date.now() + index + Math.random(),
+                        name: nameInput.value.trim(),
+                        party: partyInput.value.trim() || 'Independent',
+                        votes: 0
+                    });
+                }
+            });
+            
+            if (candidates.length < 2) {
+                showToast('At least 2 candidates are required!', 'error');
+                return;
+            }
+            
+            // Generate unique election ID
+            const existingIds = elections.map(e => e.id);
+            let newId = 1;
+            while (existingIds.includes(newId)) {
+                newId++;
+            }
+            
+            // Create election with optional geofencing
+            const election = {
+                id: newId,
+                title,
+                description,
+                startDate,
+                endDate,
+                candidates,
+                isActive: new Date() >= new Date(startDate) && new Date() <= new Date(endDate),
+                createdBy: currentUser.id,
+                voters: [],
+                geofencing: enableGeofencing ? { ...geofencingConfig } : { enabled: false }
+            };
+            
+            elections.push(election);
+            
+            // Save to storage
+            saveToStorage();
+            
+            // Reset form
+            document.getElementById('createElectionForm').reset();
+            document.getElementById('candidatesList').innerHTML = `
+                <div class="candidate-input">
+                    <input type="text" placeholder="Candidate 1 Name" required>
+                    <input type="text" placeholder="Party/Affiliation">
+                </div>
+                <div class="candidate-input">
+                    <input type="text" placeholder="Candidate 2 Name" required>
+                    <input type="text" placeholder="Party/Affiliation">
+                </div>
+            `;
+            
+            // Set default dates again
+            setDefaultElectionDates();
+            
+            renderElections();
+            showToast(`Election created successfully! ${enableGeofencing ? 'Location restrictions enabled.' : 'No location restrictions.'}`, 'success');
+        }
         // Application State with localStorage persistence
         let currentUser = null;
         let isLoggedIn = false;
@@ -2580,6 +2677,7 @@
         window.addEventListener('beforeunload', () => {
             saveToStorage();
         });
+        
     </script>
 </body>
 </html>
