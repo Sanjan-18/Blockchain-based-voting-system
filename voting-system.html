@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geofenced Blockchain Voting System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 8px 16px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover .toggle-icon {
+            transform: rotate(20deg);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .auth-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-vote {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .user-profile {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .user-email {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .user-role {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .user-role.admin {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .admin-panel {
+            border: 2px solid #ffc107;
+        }
+
+        .candidate-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .candidate-input input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .election-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .election-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .election-status {
+            background: #28a745;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .candidate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .candidate-info h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .candidate-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .candidate-results {
+            text-align: right;
+        }
+
+        .vote-count {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .vote-percentage {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .vote-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .vote-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        .users-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            border-left-color: #dc3545;
+        }
+
+        .toast.success {
+            border-left-color: #28a745;
+        }
+
+        .toast.info {
+            border-left-color: #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+
+        /* Geolocation Styles */
+        .location-card {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .location-status.allowed {
+            color: #28a745;
+        }
+
+        .location-status.blocked {
+            color: #dc3545;
+        }
+
+        .location-status.unknown {
+            color: #ffc107;
+        }
+
+        .location-info {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .location-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .location-detail-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .location-detail-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .geofence-config {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .geofence-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .geofence-type-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .geofence-type-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .geofence-type-option.active {
+            border-color: #667eea;
+            background: #e6f3ff;
+        }
+
+        .geofence-options {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .location-restriction-warning {
+            background: #fed7d7;
+            border: 2px solid #fc8181;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #c53030;
+        }
+
+        .location-allowed-notice {
+            background: #c6f6d5;
+            border: 2px solid #68d391;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #2f855a;
+        }
+
+        .user-location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-location-item:hover {
+            background: #f7fafc;
+        }
+
+        .user-location-item.allowed {
+            background: #f0fff4;
+            border-color: #68d391;
+        }
+
+        .user-location-item.blocked {
+            background: #fed7d7;
+            border-color: #fc8181;
+        }
+
+        .distance-info {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .section {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .section h2,
+        body.dark-mode .section h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-group label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea,
+        body.dark-mode .form-group select {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-group input:focus,
+        body.dark-mode .form-group textarea:focus,
+        body.dark-mode .form-group select:focus {
+            border-color: #667eea;
+            background: rgba(40, 40, 60, 1);
+        }
+
+        body.dark-mode .form-group input::placeholder,
+        body.dark-mode .form-group textarea::placeholder {
+            color: #888;
+        }
+
+        body.dark-mode .auth-tabs {
+            border-bottom-color: #444;
+        }
+
+        body.dark-mode .auth-tab {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        body.dark-mode .user-profile {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: #28a745;
+        }
+
+        body.dark-mode .user-name,
+        body.dark-mode .user-email,
+        body.dark-mode .user-id {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .admin-panel {
+            border-color: #ffc107;
+        }
+
+        body.dark-mode .election-card {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .election-info h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .election-info p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .candidate-item {
+            border-color: #444;
+            background: rgba(40, 40, 60, 0.3);
+        }
+
+        body.dark-mode .candidate-item:hover {
+            border-color: #667eea;
+            background: rgba(40, 40, 60, 0.5);
+        }
+
+        body.dark-mode .candidate-info h4 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .candidate-info p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .vote-count {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .vote-percentage {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .vote-bar {
+            background: #333;
+        }
+
+        body.dark-mode .users-list {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: #555;
+        }
+
+        body.dark-mode .user-item {
+            border-bottom-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .user-item strong {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .user-item small {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .toast {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .location-card {
+            background: rgba(40, 60, 40, 0.8);
+            border-color: #28a745;
+        }
+
+        body.dark-mode .location-info {
+            background: rgba(40, 40, 60, 0.8);
+        }
+
+        body.dark-mode .location-detail-item {
+            background: rgba(50, 50, 70, 0.8);
+        }
+
+        body.dark-mode .geofence-config {
+            background: rgba(60, 50, 30, 0.8);
+            border-color: #ffc107;
+        }
+
+        body.dark-mode .geofence-type-option {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .geofence-type-option:hover {
+            border-color: #667eea;
+            background: rgba(50, 50, 70, 0.8);
+        }
+
+        body.dark-mode .geofence-type-option.active {
+            border-color: #667eea;
+            background: rgba(60, 70, 90, 0.8);
+        }
+
+        body.dark-mode .geofence-options {
+            background: rgba(40, 40, 60, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dark-mode-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 10px auto;
+                display: flex;
+            }
+            
+            .user-details {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .candidate-input {
+                flex-direction: column;
+            }
+            
+            .election-header {
+                flex-direction: column;
+            }
+            
+            .candidate-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .auth-tabs {
+                flex-wrap: wrap;
+            }
+
+            .geofence-type-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .location-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Add PDF generation library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌍 BlockVote Geo</h1>
+            <p class="subtitle">Location-Based Blockchain Voting System</p>
+            <button id="darkModeToggle" class="dark-mode-toggle" onclick="toggleDarkMode()">
+                <span class="toggle-icon">🌙</span>
+                <span class="toggle-text">Dark Mode</span>
+            </button>
+        </header>
+
+        <!-- Authentication Section -->
+        <div id="authSection" class="section">
+            <h2>🔐 Authentication</h2>
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginRole">Login as:</label>
+                        <select id="loginRole" required>
+                            <option value="">Select Role</option>
+                            <option value="voter">Voter</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">🔑 Login</button>
+                </form>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h4>Demo Accounts:</h4>
+                    <p><strong>Admin:</strong> admin@blockvote.com / admin123</p>
+                    <p><strong>Voter:</strong> voter@blockvote.com / voter123</p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form">
+                <form id="registerFormElement">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerFirstName">First Name:</label>
+                            <input type="text" id="registerFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerLastName">Last Name:</label>
+                            <input type="text" id="registerLastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password:</label>
+                        <input type="password" id="registerPassword" required>
+                        <div id="passwordStrength" class="password-strength"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirm Password:</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerAge">Age:</label>
+                            <input type="number" id="registerAge" min="18" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPhone">Phone:</label>
+                            <input type="tel" id="registerPhone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerAddress">Address:</label>
+                        <textarea id="registerAddress" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">📝 Register as Voter</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Profile Section -->
+        <div id="userSection" class="section hidden">
+            <h2>👤 User Profile</h2>
+            <div id="userProfile" class="user-profile">
+                <div class="user-details">
+                    <div class="user-avatar" id="userAvatar">👤</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">User Name</div>
+                        <div class="user-email" id="userEmail">user@email.com</div>
+                        <div class="user-id">ID: <span id="userId">12345</span></div>
+                        <span class="user-role" id="userRole">Voter</span>
+                    </div>
+                    <button id="logoutBtn" class="btn btn-danger">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Status Card -->
+        <div id="locationSection" class="location-card hidden">
+            <h2>📍 Location Status</h2>
+            <div id="locationStatus" class="location-status unknown">
+                <span id="locationIcon">📍</span>
+                <span id="locationMessage">Location not set</span>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                <button id="getLocationBtn" class="btn btn-primary">📍 Get Current Location</button>
+                <button id="manualLocationBtn" class="btn btn-success">✏️ Enter Manually</button>
+                <button id="updateLocationBtn" class="btn">🔄 Update Location</button>
+            </div>
+
+            <div id="manualLocationForm" class="hidden">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Latitude:</label>
+                        <input type="number" id="manualLat" step="any" placeholder="e.g., 40.7128">
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude:</label>
+                        <input type="number" id="manualLng" step="any" placeholder="e.g., -74.0060">
+                    </div>
+                </div>
+                <button id="setManualLocationBtn" class="btn btn-success">📍 Set Location</button>
+                <button id="cancelManualLocationBtn" class="btn btn-danger">Cancel</button>
+            </div>
+
+            <div id="locationInfo" class="location-info hidden">
+                <h4>📍 Your Location Details</h4>
+                <div id="locationDetails" class="location-details"></div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="section admin-panel hidden">
+            <h2>⚙️ Admin Panel</h2>
+            
+            <!-- Admin Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAdminTab('elections')">Manage Elections</button>
+                <button class="auth-tab" onclick="switchAdminTab('users')">Manage Users</button>
+                <button class="auth-tab" onclick="switchAdminTab('locations')">Location Analytics</button>
+            </div>
+
+            <!-- Elections Management -->
+            <div id="adminElections" class="admin-content">
+                <!-- Geofencing Configuration -->
+                <div class="geofence-config">
+                    <h3>🗺️ Geofencing Configuration</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableGeofencing" checked>
+                            Enable Location-Based Voting Restrictions
+                        </label>
+                    </div>
+
+                    <div id="geofenceOptions">
+                        <div class="form-group">
+                            <label>Geofence Type:</label>
+                            <div class="geofence-type-selector">
+                                <div class="geofence-type-option active" data-type="city">
+                                    <input type="radio" name="geofenceType" value="city" checked>
+                                    <span>🏙️ City-based</span>
+                                </div>
+                                <div class="geofence-type-option" data-type="state">
+                                    <input type="radio" name="geofenceType" value="state">
+                                    <span>🗺️ State/Province</span>
+                                </div>
+                                <div class="geofence-type-option" data-type="country">
+                                    <input type="radio" name="geofenceType" value="country">
+                                    <span>🌍 Country</span>
+                                </div>
+                                <div class="geofence-type-option" data-type="radius">
+                                    <input type="radio" name="geofenceType" value="radius">
+                                    <span>📍 Radius</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="geofence-options">
+                            <div id="cityGeofence" class="form-group">
+                                <label>Allowed Cities (comma-separated):</label>
+                                <input type="text" id="allowedCities" placeholder="New York, Los Angeles, Chicago" value="New York, Los Angeles, Chicago">
+                            </div>
+
+                            <div id="stateGeofence" class="form-group hidden">
+                                <label>Allowed States/Provinces (comma-separated):</label>
+                                <input type="text" id="allowedStates" placeholder="California, New York, Texas">
+                            </div>
+
+                            <div id="countryGeofence" class="form-group hidden">
+                                <label>Allowed Countries (comma-separated):</label>
+                                <input type="text" id="allowedCountries" placeholder="United States, Canada, Mexico">
+                            </div>
+
+                            <div id="radiusGeofence" class="form-group hidden">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Center Latitude:</label>
+                                        <input type="number" id="centerLat" step="any" placeholder="40.7128">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Center Longitude:</label>
+                                        <input type="number" id="centerLng" step="any" placeholder="-74.0060">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Radius (kilometers):</label>
+                                    <input type="number" id="radiusKm" placeholder="50">
+                                </div>
+                                <button type="button" id="useCurrentLocationBtn" class="btn">📍 Use Current Location as Center</button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Custom Message for Blocked Users:</label>
+                                <textarea id="blockedMessage" placeholder="Sorry, voting is restricted to specific locations for this election."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Create New Election</h3>
+                <form id="createElectionForm">
+                    <div class="form-group">
+                        <label for="electionTitle">Election Title:</label>
+                        <input type="text" id="electionTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="electionDescription">Description:</label>
+                        <textarea id="electionDescription" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="electionStartDate">Start Date:</label>
+                            <input type="datetime-local" id="electionStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="electionEndDate">End Date:</label>
+                            <input type="datetime-local" id="electionEndDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Candidates:</label>
+                        <div id="candidatesList">
+                            <div class="candidate-input">
+                                <input type="text" placeholder="Candidate 1 Name" required>
+                                <input type="text" placeholder="Party/Affiliation">
+                            </div>
+                            <div class="candidate-input">
+                                <input type="text" placeholder="Candidate 2 Name" required>
+                                <input type="text" placeholder="Party/Affiliation">
+                            </div>
+                        </div>
+                        <button type="button" id="addCandidate" class="btn btn-primary">+ Add Candidate</button>
+                    </div>
+                    <button type="submit" class="btn btn-success">🚀 Create Geofenced Election</button>
+                </form>
+            </div>
+
+            <!-- Users Management -->
+            <div id="adminUsers" class="admin-content hidden">
+                <h3>User Management</h3>
+                
+                <!-- User Statistics -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #1976d2;">Total Users</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #1976d2;" id="totalUsers">0</p>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #388e3c;">Approved</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #388e3c;" id="approvedUsers">0</p>
+                    </div>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #f57c00;">Pending</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #f57c00;" id="pendingUsers">0</p>
+                    </div>
+                    <div style="background: #fce4ec; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #c2185b;">With Location</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #c2185b;" id="usersWithLocation">0</p>
+                    </div>
+                </div>
+
+                <!-- User Actions -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button onclick="showCreateUserModal()" class="btn btn-success">👤 Create New User</button>
+                    <button onclick="approveAllPendingUsers()" class="btn btn-primary">✅ Approve All Pending</button>
+                    <button onclick="exportUsersList()" class="btn" style="background: #17a2b8; color: white;">📊 Export Users</button>
+                </div>
+
+                <!-- Users List -->
+                <div id="usersList" class="users-list" style="max-height: 500px;">
+                    <!-- Users will be populated here -->
+                </div>
+            </div>
+
+            <!-- Location Analytics -->
+            <div id="adminLocations" class="admin-content hidden">
+                <h3>📍 Location Analytics</h3>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button id="refreshLocationDataBtn" class="btn btn-primary">🔄 Refresh Data</button>
+                    <button id="exportLocationDataBtn" class="btn" style="background: #17a2b8; color: white;">📊 Export Location Data</button>
+                    <button id="testGeofenceBtn" class="btn" style="background: #9c27b0; color: white;">🧪 Test Geofence</button>
+                </div>
+
+                <div id="locationAnalytics">
+                    <!-- Location analytics will be populated here -->
+                </div>
+
+                <div id="userLocationsList" class="users-list" style="margin-top: 20px;">
+                    <!-- User locations will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Elections -->
+        <div id="electionsSection" class="section hidden">
+            <h2>🗳️ Active Elections</h2>
+            <div id="electionsList">
+                <!-- Elections will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // Application State with localStorage persistence
+        let currentUser = null;
+        let isLoggedIn = false;
+        let users = [];
+        let elections = [];
+        let userLocations = new Map();
+        let geofencingConfig = {
+            enabled: true,
+            type: 'city',
+            allowedCities: ['New York', 'Los Angeles', 'Chicago'],
+            allowedStates: [],
+            allowedCountries: [],
+            centerLat: 40.7128,
+            centerLng: -74.0060,
+            radiusKm: 50,
+            blockedMessage: 'Sorry, voting is restricted to specific locations for this election.'
+        };
+
+        // Storage keys
+        const STORAGE_KEYS = {
+            USERS: 'blockvote_users',
+            ELECTIONS: 'blockvote_elections',
+            CURRENT_USER: 'blockvote_current_user',
+            USER_LOCATIONS: 'blockvote_user_locations',
+            GEOFENCING_CONFIG: 'blockvote_geofencing_config'
+        };
+
+        const GEO_OPTS = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+        const GEO_WARMUP_MS = 10000;     // how long we "listen" for a better fix
+        const GOOD_ACCURACY_M = 25;      // consider anything <= 25m as "good"
+        const GEOCODE_CACHE_KEY = 'blockvote_geocode_cache_v1';
+
+        function getGeocodeCache() {
+        try { return JSON.parse(sessionStorage.getItem(GEOCODE_CACHE_KEY) || '{}'); }
+        catch { return {}; }
+        }
+        function setGeocodeCache(cache) {
+        try { sessionStorage.setItem(GEOCODE_CACHE_KEY, JSON.stringify(cache)); } catch {}
+        }
+        function normalizeText(s) {
+        return s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim() : '';
+        }
+
+        // Load data from localStorage
+        function loadFromStorage() {
+            try {
+                // Clear existing arrays to prevent duplicates
+                users.length = 0;
+                elections.length = 0;
+                userLocations.clear();
+                
+                // Load users
+                const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+                if (savedUsers) {
+                    const parsedUsers = JSON.parse(savedUsers);
+                    users.push(...parsedUsers);
+                } else {
+                    // Initialize with demo users if no saved data
+                    initializeDemoData();
+                }
+
+                // Load elections
+                const savedElections = localStorage.getItem(STORAGE_KEYS.ELECTIONS);
+                if (savedElections) {
+                    const parsedElections = JSON.parse(savedElections);
+                    elections.push(...parsedElections);
+                }
+
+                // Load user locations
+                const savedLocations = localStorage.getItem(STORAGE_KEYS.USER_LOCATIONS);
+                if (savedLocations) {
+                    const parsedLocations = JSON.parse(savedLocations);
+                    Object.entries(parsedLocations).forEach(([key, value]) => {
+                        userLocations.set(key, value);
+                    });
+                }
+
+                // Load geofencing config
+                const savedGeofencing = localStorage.getItem(STORAGE_KEYS.GEOFENCING_CONFIG);
+                if (savedGeofencing) {
+                    geofencingConfig = { ...geofencingConfig, ...JSON.parse(savedGeofencing) };
+                }
+
+                // Load current user session
+                const savedCurrentUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+                if (savedCurrentUser) {
+                    currentUser = JSON.parse(savedCurrentUser);
+                    isLoggedIn = true;
+                    showUserProfile();
+                }
+
+                console.log('Data loaded from storage:', { 
+                    users: users.length, 
+                    elections: elections.length,
+                    locations: userLocations.size 
+                });
+            } catch (error) {
+                console.error('Error loading from storage:', error);
+                initializeDemoData();
+            }
+        }
+
+        // Save data to localStorage
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+                localStorage.setItem(STORAGE_KEYS.ELECTIONS, JSON.stringify(elections));
+                localStorage.setItem(STORAGE_KEYS.USER_LOCATIONS, JSON.stringify(Object.fromEntries(userLocations)));
+                localStorage.setItem(STORAGE_KEYS.GEOFENCING_CONFIG, JSON.stringify(geofencingConfig));
+                
+                if (currentUser) {
+                    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
+                } else {
+                    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+                }
+                console.log('Data saved to storage');
+            } catch (error) {
+                console.error('Error saving to storage:', error);
+                showToast('Error saving data. Storage might be full.', 'error');
+            }
+        }
+
+        // Initialize demo data
+        function initializeDemoData() {
+            users.length = 0; // Clear existing
+            users.push(
+                {
+                    id: 1,
+                    firstName: "Admin",
+                    lastName: "User",
+                    email: "admin@blockvote.com",
+                    password: "admin123",
+                    role: "admin",
+                    age: 30,
+                    phone: "+1234567890",
+                    address: "123 Admin Street",
+                    registeredAt: new Date().toISOString(),
+                    isApproved: true,
+                    location: {
+                        latitude: 40.7128,
+                        longitude: -74.0060,
+                        city: "New York",
+                        state: "New York",
+                        country: "United States",
+                        accuracy: 10,
+                        timestamp: Date.now()
+                    }
+                },
+                {
+                    id: 2,
+                    firstName: "John",
+                    lastName: "Voter",
+                    email: "voter@blockvote.com",
+                    password: "voter123",
+                    role: "voter",
+                    age: 25,
+                    phone: "+1234567891",
+                    address: "456 Voter Avenue",
+                    registeredAt: new Date().toISOString(),
+                    isApproved: true,
+                    location: {
+                        latitude: 34.0522,
+                        longitude: -118.2437,
+                        city: "Los Angeles",
+                        state: "California",
+                        country: "United States",
+                        accuracy: 15,
+                        timestamp: Date.now()
+                    }
+                }
+            );
+
+            // Set user locations
+            users.forEach(user => {
+                if (user.location) {
+                    userLocations.set(user.email, user.location);
+                }
+            });
+
+            saveToStorage();
+        }
+
+        // Load dark mode preference on page load
+        function loadDarkModePreference() {
+            const darkMode = localStorage.getItem('darkMode');
+            const toggle = document.getElementById('darkModeToggle');
+            const icon = toggle.querySelector('.toggle-icon');
+            const text = toggle.querySelector('.toggle-text');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
+            }
+        }
+
+        // Dark Mode Functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const toggle = document.getElementById('darkModeToggle');
+            const icon = toggle.querySelector('.toggle-icon');
+            const text = toggle.querySelector('.toggle-text');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
+                localStorage.setItem('darkMode', 'enabled');
+                showToast('Dark mode enabled! 🌙', 'info');
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark Mode';
+                localStorage.setItem('darkMode', 'disabled');
+                showToast('Light mode enabled! ☀️', 'info');
+            }
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('BlockVote Geo system initializing...');
+            
+            // Load dark mode preference first
+            loadDarkModePreference();
+            
+            // Load saved data
+            loadFromStorage();
+            
+            showToast('Welcome to BlockVote Geo! Location-based voting system loaded.', 'info');
+            setupEventListeners();
+            
+            // Set default dates for election form
+            setDefaultElectionDates();
+            
+            // If user was logged in, render their data
+            if (isLoggedIn && currentUser) {
+                renderElections();
+                if (currentUser.role === 'admin') {
+                    renderUsersList();
+                    renderLocationAnalytics();
+                }
+            }
+
+            // Add sample geofenced election
+            if (elections.length === 0) {
+                addSampleGeofencedElection();
+            }
+        });
+
+        function setDefaultElectionDates() {
+            const now = new Date();
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const startDateInput = document.getElementById('electionStartDate');
+            const endDateInput = document.getElementById('electionEndDate');
+            
+            if (startDateInput && endDateInput) {
+                startDateInput.value = tomorrow.toISOString().slice(0, 16);
+                endDateInput.value = nextWeek.toISOString().slice(0, 16);
+            }
+        }
+
+        function setupEventListeners() {
+            // Login Form
+            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
+            
+            // Register Form
+            document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
+            
+            // Password strength checker
+            document.getElementById('registerPassword').addEventListener('input', checkPasswordStrength);
+            
+            // Logout Button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Location buttons
+            document.getElementById('getLocationBtn').addEventListener('click', getCurrentLocation);
+            document.getElementById('manualLocationBtn').addEventListener('click', showManualLocationForm);
+            document.getElementById('updateLocationBtn').addEventListener('click', getCurrentLocation);
+            document.getElementById('setManualLocationBtn').addEventListener('click', setManualLocation);
+            document.getElementById('cancelManualLocationBtn').addEventListener('click', hideManualLocationForm);
+            
+            // Add Candidate Button
+            document.getElementById('addCandidate').addEventListener('click', addCandidateInput);
+            
+            // Create Election Form
+            document.getElementById('createElectionForm').addEventListener('submit', handleCreateElection);
+
+            // Geofencing controls
+            document.getElementById('enableGeofencing').addEventListener('change', toggleGeofencing);
+            document.querySelectorAll('.geofence-type-option').forEach(option => {
+                option.addEventListener('click', selectGeofenceType);
+            });
+            document.getElementById('useCurrentLocationBtn').addEventListener('click', useCurrentLocationAsCenter);
+
+            // Admin location controls
+            document.getElementById('refreshLocationDataBtn').addEventListener('click', renderLocationAnalytics);
+            document.getElementById('exportLocationDataBtn').addEventListener('click', exportLocationData);
+            document.getElementById('testGeofenceBtn').addEventListener('click', testGeofence);
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+        }
+
+        function switchAdminTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('#adminPanel .auth-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide content
+            document.querySelectorAll('.admin-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+            
+            if (tab === 'users') {
+                renderUsersList();
+            } else if (tab === 'locations') {
+                renderLocationAnalytics();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+            
+            // Find user
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showToast('Invalid email or password!', 'error');
+                return;
+            }
+            
+            if (user.role !== role) {
+                showToast(`This account is not registered as ${role}!`, 'error');
+                return;
+            }
+            
+            if (!user.isApproved) {
+                showToast('Your account is pending approval by an administrator.', 'error');
+                return;
+            }
+            
+            // Login successful
+            currentUser = user;
+            isLoggedIn = true;
+            
+            // Save session
+            saveToStorage();
+            
+            showUserProfile();
+            showToast(`Welcome back, ${user.firstName}!`, 'success');
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('registerFirstName').value;
+            const lastName = document.getElementById('registerLastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const age = parseInt(document.getElementById('registerAge').value);
+            const phone = document.getElementById('registerPhone').value;
+            const address = document.getElementById('registerAddress').value;
+            
+            // Validation
+            if (users.find(u => u.email === email)) {
+                showToast('Email already registered!', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters!', 'error');
+                return;
+            }
+            
+            if (age < 18) {
+                showToast('You must be at least 18 years old to register!', 'error');
+                return;
+            }
+            
+            // Generate unique user ID
+            const existingIds = users.map(u => u.id);
+            let newId = 1;
+            while (existingIds.includes(newId)) {
+                newId++;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: newId,
+                firstName,
+                lastName,
+                email,
+                password,
+                role: 'voter',
+                age,
+                phone,
+                address,
+                registeredAt: new Date().toISOString(),
+                isApproved: true // Auto-approve for demo
+            };
+            
+            users.push(newUser);
+            
+            // Save to storage
+            saveToStorage();
+            
+            showToast('Registration successful! Please set your location after login.', 'success');
+            
+            // Switch to login tab
+            switchTab('login');
+            
+            // Clear form
+            document.getElementById('registerFormElement').reset();
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('registerPassword').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            let strength = 0;
+            let message = '';
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            if (password.length === 0) {
+                strengthDiv.textContent = '';
+                return;
+            }
+            
+            if (strength < 3) {
+                message = 'Weak password';
+                strengthDiv.className = 'password-strength strength-weak';
+            } else if (strength < 5) {
+                message = 'Medium password';
+                strengthDiv.className = 'password-strength strength-medium';
+            } else {
+                message = 'Strong password';
+                strengthDiv.className = 'password-strength strength-strong';
+            }
+            
+            strengthDiv.textContent = message;
+        }
+
+        function showUserProfile() {
+            // Hide auth section
+            document.getElementById('authSection').classList.add('hidden');
+            
+            // Show user section
+            document.getElementById('userSection').classList.remove('hidden');
+            document.getElementById('electionsSection').classList.remove('hidden');
+            document.getElementById('locationSection').classList.remove('hidden');
+            
+            // Update user info
+            document.getElementById('userName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userId').textContent = currentUser.id;
+            document.getElementById('userRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+            document.getElementById('userAvatar').textContent = currentUser.firstName.charAt(0);
+            
+            // Update role styling
+            const roleElement = document.getElementById('userRole');
+            if (currentUser.role === 'admin') {
+                roleElement.classList.add('admin');
+                document.getElementById('adminPanel').classList.remove('hidden');
+            } else {
+                roleElement.classList.remove('admin');
+            }
+            
+            // Update location status
+            updateLocationDisplay();
+            
+            renderElections();
+            if (currentUser.role === 'admin') {
+                renderUsersList();
+                renderLocationAnalytics();
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            isLoggedIn = false;
+            
+            // Clear session from storage
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+            
+            // Show auth section
+            document.getElementById('authSection').classList.remove('hidden');
+            
+            // Hide other sections
+            document.getElementById('userSection').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('electionsSection').classList.add('hidden');
+            document.getElementById('locationSection').classList.add('hidden');
+            
+            // Clear forms
+            document.getElementById('loginFormElement').reset();
+            
+            showToast('Logged out successfully!', 'info');
+        }
+
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported by this browser.', 'error');
+                return;
+            }
+
+            updateLocationStatus('unknown', '🔄', 'Getting your location… (improving accuracy)');
+            let best = null;
+            const startedAt = Date.now();
+
+            const finalize = async (pos) => {
+                if (!pos) {
+                    updateLocationStatus('unknown', '❌', 'Failed to get location. Please try manual entry.');
+                    return;
+                }
+                const { latitude, longitude, accuracy } = pos.coords;
+                const location = {
+                    latitude, longitude, accuracy: Math.round(accuracy),
+                    timestamp: Date.now()
+                };
+                try {
+                    const addressInfo = await reverseGeocode(latitude, longitude);
+                    Object.assign(location, addressInfo);
+                } catch (e) {
+                    console.warn('Reverse geocoding failed:', e);
+                }
+                setUserLocation(location);
+            };
+
+            const onSuccess = (pos) => {
+                // keep the best (lowest accuracy value)
+                if (!best || (pos.coords.accuracy || Infinity) < (best.coords.accuracy || Infinity)) {
+                    best = pos;
+                }
+                // stop early if we already have a very accurate fix
+                if ((pos.coords.accuracy || Infinity) <= GOOD_ACCURACY_M) {
+                    cleanupAndFinalize();
+                }
+            };
+
+            const onError = (err) => {
+                console.warn('geolocation error', err);
+                if (best) cleanupAndFinalize(); // use best-so-far
+                else {
+                    // last-ditch single reading
+                    navigator.geolocation.getCurrentPosition(finalize, () => finalize(null), GEO_OPTS);
+                }
+            };
+
+            const watchId = navigator.geolocation.watchPosition(onSuccess, onError, GEO_OPTS);
+            const warmupTimer = setTimeout(() => cleanupAndFinalize(), GEO_WARMUP_MS);
+
+            function cleanupAndFinalize() {
+                clearTimeout(warmupTimer);
+                if (watchId != null) navigator.geolocation.clearWatch(watchId);
+                finalize(best);
+            }
+        }
+
+
+        // original-style coarse fallback (nearest known city) as a safety net
+        function reverseGeocodeFallback(lat, lng) {
+            const cities = [
+                { name: 'New York', lat: 40.7128, lng: -74.0060, state: 'New York', country: 'United States' },
+                { name: 'Los Angeles', lat: 34.0522, lng: -118.2437, state: 'California', country: 'United States' },
+                { name: 'Chicago', lat: 41.8781, lng: -87.6298, state: 'Illinois', country: 'United States' },
+                { name: 'Houston', lat: 29.7604, lng: -95.3698, state: 'Texas', country: 'United States' },
+                { name: 'Phoenix', lat: 33.4484, lng: -112.0740, state: 'Arizona', country: 'United States' },
+                { name: 'Philadelphia', lat: 39.9526, lng: -75.1652, state: 'Pennsylvania', country: 'United States' }
+            ];
+            let closest = cities[0];
+            let minD = calculateDistance(lat, lng, closest.lat, closest.lng);
+            for (const c of cities) {
+                const d = calculateDistance(lat, lng, c.lat, c.lng);
+                if (d < minD) { minD = d; closest = c; }
+            }
+            return { city: closest.name, state: closest.state, country: closest.country, distance: minD };
+        }
+
+
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function setUserLocation(location) {
+            if (!currentUser) return;
+            
+            // Update user's location
+            currentUser.location = location;
+            userLocations.set(currentUser.email, location);
+            
+            // Check geofencing
+            const isAllowed = checkGeofencing(location);
+            
+            // Update display
+            updateLocationDisplay();
+            
+            // Save to storage
+            saveToStorage();
+            
+            showToast('Location updated successfully!', 'success');
+            renderElections();
+        }
+
+        function updateLocationDisplay() {
+            if (!currentUser || !currentUser.location) {
+                updateLocationStatus('unknown', '📍', 'Location not set');
+                document.getElementById('locationInfo').classList.add('hidden');
+                return;
+            }
+            
+            const location = currentUser.location;
+            const isAllowed = checkGeofencing(location);
+            
+            if (isAllowed) {
+                updateLocationStatus('allowed', '✅', 'Location verified - You can vote!');
+            } else {
+                updateLocationStatus('blocked', '❌', 'Location restricted - Voting not allowed');
+            }
+            
+            // Show location details
+            document.getElementById('locationInfo').classList.remove('hidden');
+            document.getElementById('locationDetails').innerHTML = `
+                <div class="location-detail-item">
+                    <strong>City:</strong> ${location.city || 'Unknown'}
+                </div>
+                <div class="location-detail-item">
+                    <strong>State:</strong> ${location.state || 'Unknown'}
+                </div>
+                <div class="location-detail-item">
+                    <strong>Country:</strong> ${location.country || 'Unknown'}
+                </div>
+                <div class="location-detail-item">
+                    <strong>Coordinates:</strong> ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}
+                </div>
+                <div class="location-detail-item">
+                    <strong>Accuracy:</strong> ±${location.accuracy ? Math.round(location.accuracy) : 'Unknown'} meters
+                </div>
+                <div class="location-detail-item">
+                    <strong>Last Updated:</strong> ${new Date(location.timestamp).toLocaleString()}
+                </div>
+            `;
+        }
+
+        function updateLocationStatus(status, icon, message) {
+            const locationStatus = document.getElementById('locationStatus');
+            const locationIcon = document.getElementById('locationIcon');
+            const locationMessage = document.getElementById('locationMessage');
+            
+            locationStatus.className = `location-status ${status}`;
+            locationIcon.textContent = icon;
+            locationMessage.textContent = message;
+        }
+
+        function showManualLocationForm() {
+            document.getElementById('manualLocationForm').classList.remove('hidden');
+        }
+
+        function hideManualLocationForm() {
+            document.getElementById('manualLocationForm').classList.add('hidden');
+            document.getElementById('manualLat').value = '';
+            document.getElementById('manualLng').value = '';
+        }
+
+        function setManualLocation() {
+            const lat = parseFloat(document.getElementById('manualLat').value);
+            const lng = parseFloat(document.getElementById('manualLng').value);
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                showToast('Please enter valid coordinates', 'error');
+                return;
+            }
+            
+            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                showToast('Please enter valid latitude (-90 to 90) and longitude (-180 to 180)', 'error');
+                return;
+            }
+            
+            const location = {
+                latitude: lat,
+                longitude: lng,
+                accuracy: null,
+                timestamp: Date.now()
+            };
+            
+            // Try reverse geocoding
+            reverseGeocode(lat, lng).then(addressInfo => {
+                Object.assign(location, addressInfo);
+                setUserLocation(location);
+            }).catch(error => {
+                console.error('Reverse geocoding failed:', error);
+                setUserLocation(location);
+            });
+            
+            hideManualLocationForm();
+        }
+
+        // Geofencing Functions
+        function checkGeofencing(location) {
+            if (!geofencingConfig.enabled) return true;
+            if (!location) return false;
+
+            const n = normalizeText;
+            switch (geofencingConfig.type) {
+                case 'city':
+                    return location.city && geofencingConfig.allowedCities.some(city => n(city) === n(location.city));
+                case 'state':
+                    return location.state && geofencingConfig.allowedStates.some(st => n(st) === n(location.state));
+                case 'country':
+                    return location.country && geofencingConfig.allowedCountries.some(cty => n(cty) === n(location.country));
+                case 'radius':
+                    const distance = calculateDistance(
+                        location.latitude, location.longitude,
+                        geofencingConfig.centerLat, geofencingConfig.centerLng
+                    );
+                    return distance <= geofencingConfig.radiusKm;
+                default:
+                    return true;
+            }
+        }
+
+        function toggleGeofencing() {
+            geofencingConfig.enabled = document.getElementById('enableGeofencing').checked;
+            document.getElementById('geofenceOptions').style.display = geofencingConfig.enabled ? 'block' : 'none';
+            updateGeofenceConfig();
+            saveToStorage();
+            
+            if (currentUser && currentUser.location) {
+                updateLocationDisplay();
+                renderElections();
+            }
+        }
+
+        function selectGeofenceType(event) {
+            const option = event.currentTarget;
+            const type = option.dataset.type;
+            
+            // Update UI
+            document.querySelectorAll('.geofence-type-option').forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            
+            // Update radio button
+            option.querySelector('input[type="radio"]').checked = true;
+            
+            // Show/hide relevant options
+            document.querySelectorAll('[id$="Geofence"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(type + 'Geofence').classList.remove('hidden');
+            
+            geofencingConfig.type = type;
+            updateGeofenceConfig();
+            saveToStorage();
+            
+            if (currentUser && currentUser.location) {
+                updateLocationDisplay();
+                renderElections();
+            }
+        }
+
+        function updateGeofenceConfig() {
+            const allowedCities = document.getElementById('allowedCities').value;
+            const allowedStates = document.getElementById('allowedStates').value;
+            const allowedCountries = document.getElementById('allowedCountries').value;
+            const centerLat = parseFloat(document.getElementById('centerLat').value);
+            const centerLng = parseFloat(document.getElementById('centerLng').value);
+            const radiusKm = parseFloat(document.getElementById('radiusKm').value);
+            const blockedMessage = document.getElementById('blockedMessage').value;
+            
+            geofencingConfig.allowedCities = allowedCities ? allowedCities.split(',').map(s => s.trim()) : [];
+            geofencingConfig.allowedStates = allowedStates ? allowedStates.split(',').map(s => s.trim()) : [];
+            geofencingConfig.allowedCountries = allowedCountries ? allowedCountries.split(',').map(s => s.trim()) : [];
+            geofencingConfig.centerLat = centerLat || 40.7128;
+            geofencingConfig.centerLng = centerLng || -74.0060;
+            geofencingConfig.radiusKm = radiusKm || 50;
+            geofencingConfig.blockedMessage = blockedMessage || 'Sorry, voting is restricted to specific locations for this election.';
+        }
+
+        function useCurrentLocationAsCenter() {
+            if (currentUser && currentUser.location) {
+                document.getElementById('centerLat').value = currentUser.location.latitude;
+                document.getElementById('centerLng').value = currentUser.location.longitude;
+                updateGeofenceConfig();
+                saveToStorage();
+                showToast('Current location set as geofence center!', 'success');
+            } else {
+                showToast('Please set your location first!', 'error');
+            }
+        }
+
+        function testGeofence() {
+            if (!currentUser || !currentUser.location) {
+                showToast('Please set your location first!', 'error');
+                return;
+            }
+            
+            updateGeofenceConfig();
+            const isAllowed = checkGeofencing(currentUser.location);
+            const message = isAllowed ? 
+                'Your current location is ALLOWED by the geofence settings.' :
+                'Your current location is BLOCKED by the geofence settings.';
+            
+            showToast(message, isAllowed ? 'success' : 'error');
+        }
+
+        // Election Functions
+        function addCandidateInput() {
+            const candidateInput = document.createElement('div');
+            candidateInput.className = 'candidate-input';
+            candidateInput.innerHTML = `
+                <input type="text" placeholder="Candidate Name" required>
+                <input type="text" placeholder="Party/Affiliation">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            document.getElementById('candidatesList').appendChild(candidateInput);
+        }
+
+        function handleCreateElection(e) {
+            e.preventDefault();
+            
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Only administrators can create elections!', 'error');
+                return;
+            }
+            
+            updateGeofenceConfig();
+            
+            const title = document.getElementById('electionTitle').value;
+            const description = document.getElementById('electionDescription').value;
+            const startDate = document.getElementById('electionStartDate').value;
+            const endDate = document.getElementById('electionEndDate').value;
+            const candidateInputs = document.querySelectorAll('#candidatesList .candidate-input');
+            
+            // Validate dates
+            if (new Date(startDate) >= new Date(endDate)) {
+                showToast('End date must be after start date!', 'error');
+                return;
+            }
+            
+            const candidates = [];
+            candidateInputs.forEach((input, index) => {
+                const nameInput = input.querySelector('input[placeholder*="Name"]');
+                const partyInput = input.querySelector('input[placeholder*="Party"]');
+                
+                if (nameInput.value.trim()) {
+                    candidates.push({
+                        id: Date.now() + index + Math.random(),
+                        name: nameInput.value.trim(),
+                        party: partyInput.value.trim() || 'Independent',
+                        votes: 0
+                    });
+                }
+            });
+            
+            if (candidates.length < 2) {
+                showToast('At least 2 candidates are required!', 'error');
+                return;
+            }
+            
+            // Generate unique election ID
+            const existingIds = elections.map(e => e.id);
+            let newId = 1;
+            while (existingIds.includes(newId)) {
+                newId++;
+            }
+            
+            // Create election
+            const election = {
+                id: newId,
+                title,
+                description,
+                startDate,
+                endDate,
+                candidates,
+                isActive: new Date() >= new Date(startDate) && new Date() <= new Date(endDate),
+                createdBy: currentUser.id,
+                voters: [],
+                geofencing: { ...geofencingConfig }
+            };
+            
+            elections.push(election);
+            
+            // Save to storage
+            saveToStorage();
+            
+            // Reset form
+            document.getElementById('createElectionForm').reset();
+            document.getElementById('candidatesList').innerHTML = `
+                <div class="candidate-input">
+                    <input type="text" placeholder="Candidate 1 Name" required>
+                    <input type="text" placeholder="Party/Affiliation">
+                </div>
+                <div class="candidate-input">
+                    <input type="text" placeholder="Candidate 2 Name" required>
+                    <input type="text" placeholder="Party/Affiliation">
+                </div>
+            `;
+            
+            // Set default dates again
+            setDefaultElectionDates();
+            
+            renderElections();
+            showToast(`Geofenced election created successfully! ${geofencingConfig.enabled ? 'Location restrictions enabled.' : ''}`, 'success');
+        }
+
+        function vote(electionId, candidateId) {
+            console.log(`Voting for candidate ${candidateId} in election ${electionId}`);
+            
+            if (!isLoggedIn) {
+                showToast('Please login to vote!', 'error');
+                return;
+            }
+            
+            if (!currentUser.location) {
+                showToast('Please set your location to vote!', 'error');
+                return;
+            }
+            
+            const election = elections.find(e => e.id === electionId);
+            if (!election) {
+                showToast('Election not found!', 'error');
+                return;
+            }
+            
+            // Check if election is active
+            const now = new Date();
+            const startDate = new Date(election.startDate);
+            const endDate = new Date(election.endDate);
+            
+            if (now < startDate) {
+                showToast('Election has not started yet!', 'error');
+                return;
+            }
+            
+            if (now > endDate) {
+                showToast('Election has ended!', 'error');
+                return;
+            }
+            
+            // Check if user already voted
+            if (election.voters.includes(currentUser.id)) {
+                showToast('You have already voted in this election!', 'error');
+                return;
+            }
+            
+            // Check geofencing
+            if (election.geofencing && election.geofencing.enabled) {
+                const isAllowed = checkGeofencing(currentUser.location);
+                if (!isAllowed) {
+                    showToast(election.geofencing.blockedMessage || 'Your location is not allowed for this election.', 'error');
+                    return;
+                }
+            }
+            
+            // Cast vote
+            const candidate = election.candidates.find(c => c.id === candidateId);
+            if (!candidate) {
+                showToast('Candidate not found!', 'error');
+                return;
+            }
+            
+            // Update vote count
+            candidate.votes++;
+            election.voters.push(currentUser.id);
+            
+            // Save to storage
+            saveToStorage();
+            
+            renderElections();
+            showToast(`Vote cast for ${candidate.name}!`, 'success');
+        }
+
+        function renderElections() {
+            const electionsList = document.getElementById('electionsList');
+            
+            if (elections.length === 0) {
+                electionsList.innerHTML = `
+                    <div class="election-card text-center">
+                        <h3>No Elections Available</h3>
+                        <p>Check back later for upcoming elections</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            electionsList.innerHTML = elections.map(election => {
+                const totalVotes = election.candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
+                const hasVoted = election.voters.includes(currentUser?.id);
+                const now = new Date();
+                const startDate = new Date(election.startDate);
+                const endDate = new Date(election.endDate);
+                
+                let status = 'Upcoming';
+                let statusClass = 'election-status';
+                
+                if (now >= startDate && now <= endDate) {
+                    status = '🟢 Active';
+                } else if (now > endDate) {
+                    status = '🔴 Ended';
+                } else {
+                    status = '🟡 Upcoming';
+                }
+                
+                // Check if user can vote (location-wise)
+                const userCanVote = currentUser && currentUser.location && 
+                    (!election.geofencing?.enabled || checkGeofencing(currentUser.location));
+                
+                return `
+                    <div class="election-card">
+                        <div class="election-header">
+                            <div class="election-info">
+                                <h3>${election.title}</h3>
+                                <p>${election.description}</p>
+                                <p><strong>Start:</strong> ${new Date(election.startDate).toLocaleString()}</p>
+                                <p><strong>End:</strong> ${new Date(election.endDate).toLocaleString()}</p>
+                                <p><strong>Total Votes:</strong> ${totalVotes}</p>
+                                <p><strong>Geofencing:</strong> ${election.geofencing?.enabled ? 
+                                    `🌍 ${election.geofencing.type.toUpperCase()} restriction` : 
+                                    '🌐 No restrictions'}</p>
+                            </div>
+                            <div class="${statusClass}">${status}</div>
+                        </div>
+                        
+                        ${currentUser && currentUser.location && election.geofencing?.enabled && !userCanVote ? 
+                            `<div class="location-restriction-warning">
+                                <strong>❌ Location Restricted</strong><br>
+                                ${election.geofencing.blockedMessage}
+                            </div>` : 
+                            currentUser && currentUser.location && userCanVote ?
+                            `<div class="location-allowed-notice">
+                                <strong>✅ Location Verified</strong><br>
+                                You are eligible to vote in this election.
+                            </div>` : ''}
+                        
+                        <div class="candidates-list">
+                            ${election.candidates.map(candidate => {
+                                const percentage = totalVotes > 0 ? ((candidate.votes / totalVotes) * 100).toFixed(1) : 0;
+                                const canVote = isLoggedIn && now >= startDate && now <= endDate && !hasVoted && userCanVote;
+                                
+                                return `
+                                    <div class="candidate-item">
+                                        <div class="candidate-info">
+                                            <h4>${candidate.name}</h4>
+                                            <p>${candidate.party}</p>
+                                        </div>
+                                        <div class="candidate-results">
+                                            <div class="vote-count">${candidate.votes} votes</div>
+                                            <div class="vote-percentage">${percentage}%</div>
+                                            ${canVote ? 
+                                                `<button class="btn btn-vote" onclick="vote(${election.id}, ${candidate.id})">🗳️ Vote</button>` :
+                                                hasVoted ? '<span style="color: green;">✅ Voted</span>' : ''
+                                            }
+                                        </div>
+                                        <div class="vote-bar">
+                                            <div class="vote-progress" style="width: ${percentage}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        ${!isLoggedIn ? 
+                            '<p class="text-center" style="color: #666; margin-top: 15px;">🔐 Please login to vote</p>' : 
+                            !currentUser.location ? 
+                            '<p class="text-center" style="color: #666; margin-top: 15px;">📍 Please set your location to vote</p>' : 
+                            ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // User Management Functions
+        function renderUsersList() {
+            updateUserStats();
+            
+            const usersList = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<p class="text-center" style="color: #666; padding: 20px;">No users found.</p>';
+                return;
+            }
+            
+            usersList.innerHTML = users.map(user => {
+                const hasLocation = user.location && user.location.latitude;
+                const locationText = hasLocation ? 
+                    `📍 ${user.location.city || 'Unknown'}, ${user.location.state || 'Unknown'}` :
+                    '📍 No location data';
+                    
+                return `
+                    <div class="user-item">
+                        <div>
+                            <strong>${user.firstName} ${user.lastName}</strong>
+                            ${user.id === currentUser?.id ? '<span style="color: #17a2b8; font-size: 0.8rem;">(You)</span>' : ''}
+                            <br>
+                            <small>${user.email} | ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</small><br>
+                            <small>Registered: ${new Date(user.registeredAt).toLocaleDateString()}</small><br>
+                            <small style="color: #666;">${locationText}</small>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                            <span style="color: ${user.isApproved ? 'green' : 'orange'};">
+                                ${user.isApproved ? '✅ Approved' : '⏳ Pending'}
+                            </span>
+                            <span style="color: ${hasLocation ? 'blue' : 'gray'}; font-size: 0.8rem;">
+                                ${hasLocation ? '📍 Located' : '📍 No Location'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateUserStats() {
+            const totalUsers = users.length;
+            const approvedUsers = users.filter(u => u.isApproved).length;
+            const pendingUsers = users.filter(u => !u.isApproved).length;
+            const usersWithLocationCount = users.filter(u => u.location && u.location.latitude).length;
+            
+            const totalUsersEl = document.getElementById('totalUsers');
+            const approvedUsersEl = document.getElementById('approvedUsers');
+            const pendingUsersEl = document.getElementById('pendingUsers');
+            const usersWithLocationEl = document.getElementById('usersWithLocation');
+            
+            if (totalUsersEl) totalUsersEl.textContent = totalUsers;
+            if (approvedUsersEl) approvedUsersEl.textContent = approvedUsers;
+            if (pendingUsersEl) pendingUsersEl.textContent = pendingUsers;
+            if (usersWithLocationEl) usersWithLocationEl.textContent = usersWithLocationCount;
+        }
+
+        // Location Analytics Functions
+        function renderLocationAnalytics() {
+            const locationAnalytics = document.getElementById('locationAnalytics');
+            const userLocationsList = document.getElementById('userLocationsList');
+            
+            // Calculate analytics
+            const totalUsers = users.length;
+            const usersWithLocation = users.filter(u => u.location && u.location.latitude);
+            const usersWithoutLocation = users.filter(u => !u.location || !u.location.latitude);
+            
+            // Count by location
+            const locationStats = {};
+            usersWithLocation.forEach(user => {
+                const key = `${user.location.city || 'Unknown'}, ${user.location.state || 'Unknown'}`;
+                locationStats[key] = (locationStats[key] || 0) + 1;
+            });
+            
+            // Count allowed vs blocked users
+            let allowedUsers = 0;
+            let blockedUsers = 0;
+            usersWithLocation.forEach(user => {
+                if (checkGeofencing(user.location)) {
+                    allowedUsers++;
+                } else {
+                    blockedUsers++;
+                }
+            });
+            
+            // Render analytics
+            locationAnalytics.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #1976d2;">With Location</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #1976d2;">${usersWithLocation.length}</p>
+                    </div>
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #c62828;">Without Location</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #c62828;">${usersWithoutLocation.length}</p>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #2e7d32;">Allowed</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #2e7d32;">${allowedUsers}</p>
+                    </div>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h4 style="margin: 0; color: #f57c00;">Blocked</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: #f57c00;">${blockedUsers}</p>
+                    </div>
+                </div>
+                
+                <h4>Users by Location:</h4>
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                    ${Object.entries(locationStats).length > 0 ? 
+                        Object.entries(locationStats)
+                            .sort(([,a], [,b]) => b - a)
+                            .map(([location, count]) => `
+                                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee;">
+                                    <span>${location}</span>
+                                    <strong>${count} user${count > 1 ? 's' : ''}</strong>
+                                </div>
+                            `).join('') :
+                        '<p style="color: #666; text-align: center;">No location data available</p>'
+                    }
+                </div>
+            `;
+            
+            // Render user locations list
+            if (usersWithLocation.length === 0) {
+                userLocationsList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No users with location data</p>';
+            } else {
+                userLocationsList.innerHTML = usersWithLocation.map(user => {
+                    const isAllowed = checkGeofencing(user.location);
+                    const distance = user.location.distance ? user.location.distance.toFixed(2) + ' km from city center' : 'Distance unknown';
+                    
+                    return `
+                        <div class="user-location-item ${isAllowed ? 'allowed' : 'blocked'}">
+                            <div>
+                                <strong>${user.firstName} ${user.lastName}</strong><br>
+                                <small>${user.location.city}, ${user.location.state}, ${user.location.country}</small>
+                                <div class="distance-info">${distance}</div>
+                                <div style="font-size: 0.8rem; color: #666;">
+                                    ${user.location.latitude.toFixed(4)}, ${user.location.longitude.toFixed(4)}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; color: ${isAllowed ? '#2e7d32' : '#c62828'};">
+                                    ${isAllowed ? '✅ Allowed' : '❌ Blocked'}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #666;">
+                                    Updated: ${new Date(user.location.timestamp).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function exportLocationData() {
+            const data = [];
+            users.forEach(user => {
+                if (user.location && user.location.latitude) {
+                    data.push({
+                        name: `${user.firstName} ${user.lastName}`,
+                        email: user.email,
+                        latitude: user.location.latitude,
+                        longitude: user.location.longitude,
+                        city: user.location.city || '',
+                        state: user.location.state || '',
+                        country: user.location.country || '',
+                        allowed: checkGeofencing(user.location),
+                        accuracy: user.location.accuracy || '',
+                        timestamp: new Date(user.location.timestamp).toISOString()
+                    });
+                }
+            });
+            
+            if (data.length === 0) {
+                showToast('No location data to export!', 'error');
+                return;
+            }
+            
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'user-locations.csv');
+            showToast('Location data exported successfully!', 'success');
+        }
+
+        function convertToCSV(data) {
+            if (data.length === 0) return '';
+            
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+            ].join('\n');
+            
+            return csvContent;
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Utility Functions
+        function addSampleGeofencedElection() {
+            const sampleElection = {
+                id: 1,
+                title: "NYC Local Election 2024",
+                description: "Vote for local representatives - Restricted to New York City area",
+                startDate: new Date().toISOString(),
+                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                candidates: [
+                    { id: 1, name: "Alice Johnson", party: "Progressive Party", votes: 0 },
+                    { id: 2, name: "Bob Smith", party: "Conservative Party", votes: 0 },
+                    { id: 3, name: "Carol Davis", party: "Independent", votes: 0 }
+                ],
+                isActive: true,
+                createdBy: 1,
+                voters: [],
+                geofencing: {
+                    enabled: true,
+                    type: 'city',
+                    allowedCities: ['New York'],
+                    allowedStates: [],
+                    allowedCountries: [],
+                    centerLat: 40.7128,
+                    centerLng: -74.0060,
+                    radiusKm: 50,
+                    blockedMessage: 'This election is restricted to New York City residents only.'
+                }
+            };
+            elections.push(sampleElection);
+            saveToStorage();
+        }
+
+        function showCreateUserModal() {
+            showToast('User creation modal would open here. For demo, users can register normally.', 'info');
+        }
+
+        function approveAllPendingUsers() {
+            const pendingUsers = users.filter(u => !u.isApproved);
+            if (pendingUsers.length === 0) {
+                showToast('No pending users to approve!', 'info');
+                return;
+            }
+            
+            if (confirm(`Approve all ${pendingUsers.length} pending users?`)) {
+                pendingUsers.forEach(user => {
+                    user.isApproved = true;
+                });
+                
+                saveToStorage();
+                renderUsersList();
+                showToast(`${pendingUsers.length} users approved!`, 'success');
+            }
+        }
+
+        function exportUsersList() {
+            const data = users.map(user => ({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+                age: user.age,
+                phone: user.phone,
+                address: user.address,
+                registrationDate: new Date(user.registeredAt).toLocaleString(),
+                status: user.isApproved ? 'Approved' : 'Pending',
+                hasLocation: user.location && user.location.latitude ? 'Yes' : 'No',
+                city: user.location?.city || '',
+                state: user.location?.state || '',
+                country: user.location?.country || ''
+            }));
+            
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'users-list.csv');
+            showToast('Users list exported successfully!', 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        // Auto-save every 30 seconds (as backup)
+        setInterval(() => {
+            if (users.length > 0 || elections.length > 0) {
+                saveToStorage();
+                console.log('Auto-saved data to localStorage');
+            }
+        }, 30000);
+
+        // Save data before page unload
+        window.addEventListener('beforeunload', () => {
+            saveToStorage();
+        });
+    </script>
+</body>
+</html>
